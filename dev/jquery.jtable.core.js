@@ -21,6 +21,8 @@
             loadingAnimationDelay: 500,
             saveUserPreferences: true,
             jqueryuiTheme: false,
+            tree: false,
+            leveledField: '',
 
             ajaxSettings: {
                 type: 'POST',
@@ -417,6 +419,10 @@
                     self._removeAllRows('reloading');
                     self._addRecordsToTable(data.Records);
 
+                    //bind tree click events
+                    if (self.options.tree)
+                        self._bindTreeClickEvents();
+
                     self._onRecordsLoaded(data);
 
                     //Call complete callback
@@ -464,9 +470,19 @@
         /* Create a cell for given field.
         *************************************************************************/
         _createCellForRecordField: function (record, fieldName) {
-            return $('<td></td>')
+            if (this.options.tree && this.options.leveledField == fieldName) {
+                return $('<td></td>')
+                .addClass(this.options.fields[fieldName].listClass)
+                .attr('data-depth', record.Level)
+                .addClass('jtable-tree-collapse')
+                .addClass('jtable-tree-level' + record.Level)
+	            .append('<span class="jtable-tree-toggle"></span>'+(this._getDisplayTextForRecordField(record, fieldName)));
+            }
+            else {
+                return $('<td></td>')
                 .addClass(this.options.fields[fieldName].listClass)
                 .append((this._getDisplayTextForRecordField(record, fieldName)));
+            }
         },
 
         /* Adds a list of records to the table.
@@ -1209,6 +1225,49 @@
 
         _onCloseRequested: function () {
             this._trigger("closeRequested", null, {});
+        },
+
+        /***********************************
+        * tree click event binding
+        ***********************************/
+        _bindTreeClickEvents: function () {
+            //$('#GroupTableContainer').on('click', '.toggle', function () { //for new jquery
+            this._$tableBody.find('.jtable-tree-toggle').bind('click', function () {
+                //Gets all <tr>'s  of greater depth
+                //below element in the table
+                var findChildren = function (tr) {
+                    var depth = tr.find(':first-child').data('depth');
+                    return tr.nextUntil($('tr').filter(function () {
+                        return $(this).find(':first-child').data('depth') <= depth;
+                    }));
+                };
+
+                var el = $(this);
+                var tr = el.closest('tr'); //Get <tr> parent of toggle button
+                var children = findChildren(tr);
+
+                //Remove already collapsed nodes from children so that we don't
+                //make them visible. 
+                var subnodes = children.filter('.jtable-tree-expand');
+                subnodes.each(function () {
+                    var subnode = $(this);
+                    var subnodeChildren = findChildren(subnode);
+                    children = children.not(subnodeChildren);
+                });
+
+                //Change icon and hide/show children
+                if (tr.hasClass('jtable-tree-collapse')) {
+                    tr.removeClass('jtable-tree-collapse').addClass('jtable-tree-expand');
+                    children.hide();
+                } else {
+                    tr.removeClass('jtable-tree-expand').addClass('jtable-tree-collapse');
+                    //exclude invisible child rows
+                    var childrows = children.filter('.jtable-child-row');
+                    children = children.not(childrows);
+                    children.show();
+                }
+                return children;
+            });
         }
 
     });

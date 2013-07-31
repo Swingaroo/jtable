@@ -1,0 +1,35 @@
+td.jtable-tree-level1{
+    padding-left: 15px !important;
+}
+td.jtable-tree-level2{
+    padding-left: 30px !important;
+}
+td.jtable-tree-level3{
+    padding-left: 45px !important;
+}
+td.jtable-tree-level4{
+    padding-left: 60px !important;
+}
+td.jtable-tree-level5{
+    padding-left: 75px !important;
+}
+td.jtable-tree-level6{
+    padding-left: 90px !important;
+}
+td.jtable-tree-level7{
+    padding-left: 105px !important;
+}
+
+
+.jtable-tree-collapse .jtable-tree-toggle {
+    background: url("http://mleibman.github.com/SlickGrid/images/collapse.gif");
+}
+.jtable-tree-expand .jtable-tree-toggle {
+    background: url("http://mleibman.github.com/SlickGrid/images/expand.gif");
+}
+.jtable-tree-toggle {
+    height: 9px;
+    width: 9px;
+    display: inline-block;
+    margin-right:3px;
+}
